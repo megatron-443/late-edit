@@ -1,0 +1,319 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chrome: var(--chrome);
+  --color-chrome-muted: var(--chrome-muted);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;
+  --font-sans: "Inter", "Helvetica Neue", sans-serif;
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.32, 0.5, 1);
+}
+
+
+/* LIGHT — "Atelier Off-White" (default) */
+:root {
+  color-scheme: light;
+  --radius: 0.125rem;
+  --background: hsl(40 30% 97%);                 /* #FBF9F5 bone */
+
+  --surface: hsl(40 28% 95%);
+  --surface-elevated: hsl(40 24% 93%);
+  --foreground: hsl(0 0% 10%);                   /* #1A1A1A charcoal */
+  --card: hsl(40 30% 98%);
+  --card-foreground: hsl(0 0% 10%);
+  --popover: hsl(40 30% 98%);
+  --popover-foreground: hsl(0 0% 10%);
+  --primary: hsl(0 0% 10%);
+  --primary-foreground: hsl(40 30% 97%);
+  --secondary: hsl(38 18% 92%);
+  --secondary-foreground: hsl(0 0% 10%);
+  --muted: hsl(38 18% 92%);
+  --muted-foreground: hsl(0 0% 32%);
+  --accent: hsl(0 0% 20%);
+  --accent-foreground: hsl(40 30% 97%);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: hsl(40 30% 97%);
+  --border: hsl(38 20% 88%);                     /* #EBE7DF warm beige */
+  --input: hsl(38 20% 86%);
+  --ring: hsl(0 0% 20%);
+  --chrome: hsl(0 0% 20%);
+  --chrome-muted: hsl(0 0% 32%);
+}
+
+/* DARK — "Chrome Noir" */
+.dark {
+  color-scheme: dark;
+  --background: hsl(240 4% 6%);                  /* #0F0F10 */
+
+  --surface: hsl(240 4% 9%);
+  --surface-elevated: hsl(240 4% 13%);
+  --foreground: hsl(0 0% 95%);                   /* #F3F3F3 */
+  --card: hsl(240 4% 9%);
+  --card-foreground: hsl(0 0% 95%);
+  --popover: hsl(240 4% 9%);
+  --popover-foreground: hsl(0 0% 95%);
+  --primary: hsl(0 0% 95%);
+  --primary-foreground: hsl(240 4% 6%);
+  --secondary: hsl(240 4% 15%);
+  --secondary-foreground: hsl(0 0% 95%);
+  --muted: hsl(240 4% 13%);
+  --muted-foreground: hsl(0 0% 78%);
+  --accent: hsl(0 0% 85%);
+  --accent-foreground: hsl(240 4% 6%);
+  --border: hsl(240 3% 15%);                     /* #242426 metallic slate */
+  --input: hsl(240 3% 18%);
+  --ring: hsl(0 0% 85%);
+  --chrome: hsl(0 0% 88%);
+  --chrome-muted: hsl(0 0% 78%);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ——— Micro-interactions ——— */
+@keyframes le-accordion-down {
+  from { height: 0; opacity: 0; transform: translateY(-2px); }
+  to   { height: var(--radix-accordion-content-height); opacity: 1; transform: translateY(0); }
+}
+@keyframes le-accordion-up {
+  from { height: var(--radix-accordion-content-height); opacity: 1; transform: translateY(0); }
+  to   { height: 0; opacity: 0; transform: translateY(-2px); }
+}
+@keyframes le-reveal-up {
+  0%   { opacity: 0; transform: translateY(8px); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0);   filter: blur(0); }
+}
+@keyframes le-fade-scale {
+  0%   { opacity: 0; transform: scale(0.985); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@utility reveal-up {
+  animation: le-reveal-up 480ms var(--ease-editorial) both;
+}
+@utility fade-scale-in {
+  animation: le-fade-scale 320ms var(--ease-editorial) both;
+}
+@utility press {
+  transition: transform 200ms var(--ease-editorial), opacity 200ms var(--ease-editorial);
+  &:active { transform: scale(0.97); }
+}
+@utility stagger-children {
+  & > * {
+    animation: le-reveal-up 520ms var(--ease-editorial) both;
+    animation-delay: calc(var(--i, 0) * 45ms + 80ms);
+  }
+}
+
+@utility section-y {
+  padding-top: clamp(4rem, 8vw, 7rem);
+  padding-bottom: clamp(4rem, 8vw, 7rem);
+}
+
+
+
+@utility label-eyebrow {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-chrome-muted);
+}
+
+/* Canonical numeric type — used by <Price /> and any bespoke total.
+   Geometric sans + tabular/lining figures so ₹ $ € £ ¥ and digits share
+   a stable baseline across both themes. */
+@utility price-num {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1, "kern" 1;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
+@utility glass {
+  background: color-mix(in oklab, var(--color-background) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--color-border);
+}
+
+@utility chrome-text {
+  background: linear-gradient(180deg,
+    color-mix(in oklab, var(--color-foreground) 100%, transparent) 0%,
+    color-mix(in oklab, var(--color-foreground) 60%, transparent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Header shell — LV-style */
+@utility header-shell {
+  transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+  border-bottom: 1px solid transparent;
+  padding-top: env(safe-area-inset-top);
+}
+@utility header-transparent {
+  background: transparent;
+  color: #ffffff;
+  border-bottom-color: transparent;
+}
+@utility header-solid-light {
+  background: #F8F7F4;
+  color: #111113;
+  border-bottom-color: rgba(0,0,0,0.06);
+}
+@utility header-solid-dark {
+  background: #0A0A0C;
+  color: #ffffff;
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+
+/* Slim, self-effacing drawer scrollbar. */
+@utility scrollbar-luxury {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--foreground) 22%, transparent) transparent;
+  &::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 18%, transparent);
+    border-radius: 999px;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 34%, transparent);
+  }
+}
+
+/* ——— Theme cross-fade ———
+   Primary path: the settings context runs the palette swap inside a view
+   transition and arms `.theme-vt` on <html>. The browser cross-dissolves a
+   snapshot of the old paint into the new one, so every pixel — surfaces, text,
+   icons, imagery, gradient scrims — changes together. No real element carries a
+   transition, so hover/press timing is untouched and there is no muddy
+   text midpoint.
+
+   Fallback path: `.theme-transition` is armed only when view transitions are
+   unavailable, and animates background/border colour on structural surfaces
+   only; text and icons swap instantly.
+
+   Both paths are click-triggered only, and both are disabled under
+   reduced-motion (the context swaps instantly in that case). */
+@keyframes le-theme-fade-out { to { opacity: 0; } }
+@keyframes le-theme-fade-in { from { opacity: 0; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-vt::view-transition-group(root) {
+    animation-duration: 260ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  html.theme-vt::view-transition-old(root),
+  html.theme-vt::view-transition-new(root) {
+    animation-duration: 260ms;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    /* Default `plus-lighter` blows out midtones; a plain stacked cross-fade
+       keeps the swap calm and avoids any bright flash. */
+    mix-blend-mode: normal;
+  }
+  html.theme-vt::view-transition-old(root) {
+    animation-name: le-theme-fade-out;
+  }
+  html.theme-vt::view-transition-new(root) {
+    animation-name: le-theme-fade-in;
+  }
+
+  /* Fallback surfaces only — no `color`, `fill`, `stroke` or `*`. */
+  html.theme-transition,
+  html.theme-transition body,
+  html.theme-transition header,
+  html.theme-transition footer,
+  html.theme-transition aside,
+  html.theme-transition dialog,
+  html.theme-transition [role="dialog"],
+  html.theme-transition [data-theme-surface] {
+    transition-property: background-color, border-color;
+    transition-duration: 260ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-delay: 0ms;
+  }
+}
+
+
+/* ——— Viewport stability (unlayered: must win over utilities) ——— */
+
+/* No horizontal overflow anywhere: off-canvas drawers and wide rows are clipped
+   at the document edge, so the browser never re-fits the viewport width. */
+html, body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+/* iOS Safari auto-zooms when a focused field is under 16px, and the zoom
+   persists across navigation. Enforce a 16px minimum on touch widths only. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
