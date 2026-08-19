@@ -15,6 +15,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SettingsProvider } from "@/lib/settings-context";
 import { WishlistProvider } from "@/lib/wishlist-context";
 import { CartProvider } from "@/lib/cart-context";
+import { OverlayProvider } from "@/lib/overlay-context";
 
 function NotFoundComponent() {
   return (
@@ -155,11 +156,13 @@ function RootComponent() {
       <SettingsProvider>
         <WishlistProvider>
           <CartProvider>
-            <SiteHeader />
-            <main className="min-h-screen">
-              <Outlet />
-            </main>
-            <SiteFooter />
+            <OverlayProvider>
+              <SiteHeader />
+              <main className="min-h-screen">
+                <Outlet />
+              </main>
+              <SiteFooter />
+            </OverlayProvider>
           </CartProvider>
         </WishlistProvider>
       </SettingsProvider>

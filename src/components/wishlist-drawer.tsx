@@ -1,44 +1,18 @@
-import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist-context";
 import { useCart } from "@/lib/cart-context";
 import { products } from "@/lib/mockData";
-import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
-import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
+import { Overlay } from "./overlay";
+import { SmartImage } from "@/components/smart-image";
 import { Price } from "./price";
 
 export function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { ids, remove } = useWishlist();
   const { add, has: inBag } = useCart();
   const items = products.filter((p) => ids.includes(p.id));
-  useBodyScrollLock(open);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  const { mounted, shown } = useOverlayPresence(open, 560);
-
-  if (!mounted) return null;
-
   return (
-    <OverlayPortal>
-    <div
-      className={`fixed inset-0 z-[70] transition-opacity duration-500 ${
-        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-      }`}
-      aria-hidden={!shown}
-    >
-      <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={onClose} />
-      <aside
-        className={`absolute right-0 top-0 h-dvh w-full max-w-md bg-surface border-l border-border transition-transform duration-[520ms] ease-editorial will-change-transform ${
-          shown ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+    <Overlay open={open} onClose={onClose} label="Wishlist" surface="right" z={70}>
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-6 md:px-8 py-4 md:py-6 border-b border-border">
             <span className="label-eyebrow !text-foreground">Wishlist — {items.length}</span>
@@ -68,7 +42,7 @@ export function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () =
                   style={{ ["--i" as string]: i } as React.CSSProperties}
                 >
                   <Link to="/product/$id" params={{ id: p.id }} onClick={onClose} className="shrink-0">
-                    <img src={p.images[0]} alt={p.title} className="w-20 h-24 object-cover object-top transition-transform duration-500 ease-editorial hover:scale-[1.02]" />
+                    <SmartImage src={p.images[0]} alt={p.title} ratio="3/4" className="w-20 h-24 object-cover object-top transition-transform duration-500 ease-editorial hover:scale-[1.02]" />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <div className="label-eyebrow !text-foreground/80">{p.serial}</div>
@@ -118,8 +92,6 @@ export function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () =
             <p className="mt-3 text-xs text-muted-foreground text-center">Wishlist saved locally to this device.</p>
           </div>
         </div>
-      </aside>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }

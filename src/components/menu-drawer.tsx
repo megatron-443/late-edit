@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, Heart, Mail, MessageCircle, Moon, Search, Sun, User, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Heart, Mail, MessageCircle, Moon, Sun, User, X } from "lucide-react";
 
 import { menuSections, concierge, type MenuNode } from "@/lib/mockData";
 import { CURRENCY_META, LANGUAGES, useSettings, type Language } from "@/lib/settings-context";
 import { useWishlist } from "@/lib/wishlist-context";
-import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
-import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
+import { Overlay } from "./overlay";
 import { CurrencyPicker } from "./currency-picker";
 
 
@@ -53,19 +52,17 @@ type Props = {
   onClose: () => void;
   onOpenWishlist?: () => void;
   onOpenAccount?: () => void;
-  onOpenSearch?: () => void;
 };
 
-export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpenSearch }: Props) {
+export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount }: Props) {
 
   const { count } = useWishlist();
   const [expanded, setExpanded] = useState<string | null>(null);
   const [careOpen, setCareOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  useBodyScrollLock(open);
 
   // Swipe-to-dismiss (mobile). Continuous drag; commit close on release.
-  const asideRef = useRef<HTMLElement>(null);
+  const asideRef = useRef<HTMLElement | null>(null);
   const [drag, setDrag] = useState<number | null>(null);
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
@@ -100,13 +97,6 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
     activePointer.current = null;
     decided.current = null;
   };
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
 
   useEffect(() => {
     if (!open) {
@@ -162,6 +152,7 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
                 <li key={child.label} className="pl-4">
                   <Link
                     to={child.to as string}
+                    search={child.search ? { category: child.search.category } : undefined}
                     onClick={onClose}
                     className="block text-sm tracking-wide text-muted-foreground hover:text-foreground transition-colors"
                   >
@@ -176,37 +167,30 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
     );
   };
 
-  const { mounted, shown } = useOverlayPresence(open, 580);
   const dragging = drag != null;
-  const translate = shown ? `translateX(${drag ?? 0}px)` : "translateX(-100%)";
-
-  if (!mounted) return null;
 
   return (
-    <OverlayPortal>
-    <div
-      className={`fixed inset-0 z-[70] transition-opacity duration-500 ${
-        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-      }`}
-      aria-hidden={!shown}
-    >
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      <aside
-        ref={asideRef}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        style={{
-          transform: translate,
+    <Overlay
+      open={open}
+      onClose={onClose}
+      label="Main menu"
+      surface="left"
+      z={70}
+      exitMs={580}
+      panelRef={asideRef}
+      backdropClassName="bg-black/40 backdrop-blur-sm"
+      panelProps={{
+        onPointerDown,
+        onPointerMove,
+        onPointerUp: endDrag,
+        onPointerCancel: endDrag,
+        style: {
+          transform: dragging ? `translateX(${drag ?? 0}px)` : undefined,
           transition: dragging ? "none" : undefined,
           touchAction: "pan-y",
-        }}
-        className={`absolute left-0 top-0 h-dvh w-[85vw] max-w-[380px] md:max-w-md bg-background border-r border-border transition-transform duration-[520ms] ease-editorial will-change-transform`}
-      >
+        },
+      }}
+    >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-6 md:px-8 py-4 md:py-5 border-b border-border">
             <span className="label-eyebrow !text-foreground">Menu</span>
@@ -219,17 +203,7 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
             </button>
           </div>
 
-          <div className={`flex-1 min-h-0 overflow-y-auto scrollbar-luxury px-6 md:px-8 py-8 space-y-10 ${shown ? "stagger-children" : ""}`}>
-            {onOpenSearch && (
-              <button
-                type="button"
-                onClick={onOpenSearch}
-                className="hidden md:flex w-full items-center gap-3 px-4 h-11 border border-border hover:border-foreground transition-colors text-sm text-muted-foreground"
-              >
-                <Search size={14} strokeWidth={1.5} />
-                <span>Search the archive</span>
-              </button>
-            )}
+          <div className={`flex-1 min-h-0 overflow-y-auto scrollbar-luxury px-6 md:px-8 py-8 space-y-10 ${open ? "stagger-children" : ""}`}>
             {menuSections.map((section, i) => (
               <section
                 key={section.eyebrow}
@@ -242,8 +216,8 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
               </section>
             ))}
 
-            {/* Mobile-only quick actions */}
-            <section className="md:hidden pt-2 border-t border-border">
+            {/* Quick actions — same utilities on every viewport */}
+            <section className="pt-2 border-t border-border">
               <div className="pt-6 grid grid-cols-2 gap-2">
                 <button
                   onClick={onOpenWishlist}
@@ -311,9 +285,7 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
           {/* Compact settings accordion */}
           <SettingsAccordion open={settingsOpen} onToggle={() => setSettingsOpen((v) => !v)} />
         </div>
-      </aside>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }
 

@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { SmartImage } from "@/components/smart-image";
 import { Heart } from "lucide-react";
 import { type Product } from "@/lib/mockData";
 import { useWishlist } from "@/lib/wishlist-context";
@@ -34,25 +35,18 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="group block">
       <Link to="/product/$id" params={{ id: product.id }} className="block">
         <div className="relative overflow-hidden bg-[oklch(0.96_0.003_85)] dark:bg-surface-elevated aspect-[3/4]">
-          <img
+          <SmartImage
             src={primary}
             alt={product.title}
-            loading="lazy"
-            decoding="async"
-            width={900}
-            height={1200}
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
-            }}
+            ratio="3/4"
             className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
           />
           {secondary && (
-            <img
+            <SmartImage
               src={secondary}
               alt=""
               aria-hidden
-              loading="lazy"
-              decoding="async"
+              ratio="3/4"
               className="absolute inset-0 h-full w-full object-cover object-center opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100 motion-reduce:hidden"
             />
           )}

@@ -1,3 +1,4 @@
+import { SmartImage } from "@/components/smart-image";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Check, Lock, ShieldCheck, Timer, Truck } from "lucide-react";
@@ -261,7 +262,7 @@ function CheckoutPage() {
               <ul className="divide-y divide-border border-y border-border">
                 {detailed.map(({ line, product, msLeft }) => (
                   <li key={line.id} className="flex gap-5 py-5">
-                    <img src={product.images[0]} alt={product.title} className="w-20 h-24 object-cover object-top shrink-0" />
+                    <SmartImage src={product.images[0]} alt={product.title} ratio="3/4" className="w-20 h-24 object-cover object-top shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="label-eyebrow !text-foreground/70">{product.serial} · Size {line.size}</div>
                       <div className="font-display text-lg">{product.title}</div>

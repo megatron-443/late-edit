@@ -1,3 +1,4 @@
+import { SmartImage } from "@/components/smart-image";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, X } from "lucide-react";
 import { products } from "@/lib/mockData";
@@ -68,10 +69,10 @@ function WishlistPage() {
             return (
               <li key={p.id} className="flex flex-col sm:flex-row gap-5 py-6">
                 <Link to="/product/$id" params={{ id: p.id }} className="shrink-0">
-                  <img
+                  <SmartImage
                     src={p.images[0]}
                     alt={p.title}
-                    loading="lazy"
+                    ratio="3/4"
                     className="w-28 h-36 object-cover object-top"
                   />
                 </Link>

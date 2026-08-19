@@ -1,3 +1,4 @@
+import { SmartImage } from "@/components/smart-image";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Heart, RotateCcw, MapPin } from "lucide-react";
@@ -134,11 +135,11 @@ function ProductPage() {
               key={i}
               className="bg-surface aspect-[3/4] overflow-hidden shrink-0 w-[85%] snap-center lg:w-full"
             >
-              <img
+              <SmartImage
                 src={src}
                 alt={`${product.title} — view ${i + 1}`}
+                ratio="3/4"
                 loading={i === 0 ? "eager" : "lazy"}
-                decoding="async"
                 className="h-full w-full object-cover object-top"
               />
             </div>

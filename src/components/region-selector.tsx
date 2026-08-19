@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useSettings, type Currency, type Language } from "@/lib/settings-context";
-import { lockBodyScroll } from "@/hooks/use-body-scroll-lock";
-import { OverlayPortal } from "./overlay-portal";
+import { Overlay } from "./overlay";
 
 type Region = {
   country: string;
@@ -48,37 +47,23 @@ export function RegionSelector({ open, onClose }: Props) {
     if (match) setSelected(match);
   }, [open, currency, language]);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const unlock = lockBodyScroll();
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      unlock();
-    };
-  }, [open, onClose]);
-
   const confirm = () => {
     setCurrency(selected.currency);
     setLanguage(selected.language);
     onClose();
   };
 
-  if (!open) return null;
-
   return (
-    <OverlayPortal>
-    <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Region, language and currency">
-      <button
-        aria-label="Close region selector"
-        onClick={onClose}
-        className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
-      />
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(560px,92vw)] max-h-[85dvh] bg-background border border-border shadow-2xl flex flex-col"
-        style={{ animation: "le-reveal-up 520ms var(--ease-editorial) both" }}
-      >
+    <Overlay
+      open={open}
+      onClose={onClose}
+      label="Region, language and currency"
+      surface="center"
+      z={70}
+      exitMs={420}
+      panelClassName="flex flex-col"
+      backdropClassName="bg-foreground/40 backdrop-blur-sm"
+    >
         <header className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-border">
           <div>
             <div className="label-eyebrow">Region</div>
@@ -137,8 +122,6 @@ export function RegionSelector({ open, onClose }: Props) {
             Confirm
           </button>
         </footer>
-      </div>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }
