@@ -153,9 +153,7 @@ export function CurrencyPicker({ open, onClose, value, onChange }: Props) {
             </div>
           )}
         </div>
-      </div>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }
 
