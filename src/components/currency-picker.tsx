@@ -6,6 +6,7 @@ import {
   PINNED_CURRENCIES,
   type Currency,
 } from "@/lib/settings-context";
+import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
 
 type Props = {
   open: boolean;
@@ -55,10 +56,15 @@ export function CurrencyPicker({ open, onClose, value, onChange }: Props) {
     onClose();
   };
 
+  const { mounted, shown } = useOverlayPresence(open, 500);
+
+  if (!mounted) return null;
+
   return (
+    <OverlayPortal>
     <div
       className={`fixed inset-0 z-[90] transition-opacity duration-300 ${
-        open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       }`}
       role="dialog"
       aria-modal="true"
@@ -68,7 +74,7 @@ export function CurrencyPicker({ open, onClose, value, onChange }: Props) {
       <div
         ref={dialogRef}
         className={`absolute left-1/2 -translate-x-1/2 bottom-0 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-full md:max-w-md bg-background border border-border shadow-2xl transition-all duration-[460ms] ease-editorial will-change-transform ${
-          open ? "translate-y-0 opacity-100 md:scale-100" : "translate-y-full md:translate-y-4 opacity-0 md:scale-[0.98]"
+          shown ? "translate-y-0 opacity-100 md:scale-100" : "translate-y-full md:translate-y-4 opacity-0 md:scale-[0.98]"
         }`}
         style={{ maxHeight: "min(85dvh, 720px)" }}
       >
@@ -162,6 +168,7 @@ export function CurrencyPicker({ open, onClose, value, onChange }: Props) {
         </div>
       </div>
     </div>
+    </OverlayPortal>
   );
 }
 

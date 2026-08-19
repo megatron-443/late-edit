@@ -6,6 +6,7 @@ import { menuSections, concierge, type MenuNode } from "@/lib/mockData";
 import { CURRENCY_META, LANGUAGES, useSettings, type Language } from "@/lib/settings-context";
 import { useWishlist } from "@/lib/wishlist-context";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
+import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
 import { CurrencyPicker } from "./currency-picker";
 
 
@@ -175,15 +176,19 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
     );
   };
 
+  const { mounted, shown } = useOverlayPresence(open, 580);
   const dragging = drag != null;
-  const translate = open ? `translateX(${drag ?? 0}px)` : "translateX(-100%)";
+  const translate = shown ? `translateX(${drag ?? 0}px)` : "translateX(-100%)";
+
+  if (!mounted) return null;
 
   return (
+    <OverlayPortal>
     <div
       className={`fixed inset-0 z-[70] transition-opacity duration-500 ${
-        open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       }`}
-      aria-hidden={!open}
+      aria-hidden={!shown}
     >
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
@@ -214,7 +219,7 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
             </button>
           </div>
 
-          <div className={`flex-1 min-h-0 overflow-y-auto scrollbar-luxury px-6 md:px-8 py-8 space-y-10 ${open ? "stagger-children" : ""}`}>
+          <div className={`flex-1 min-h-0 overflow-y-auto scrollbar-luxury px-6 md:px-8 py-8 space-y-10 ${shown ? "stagger-children" : ""}`}>
             {onOpenSearch && (
               <button
                 type="button"
@@ -308,6 +313,7 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
         </div>
       </aside>
     </div>
+    </OverlayPortal>
   );
 }
 

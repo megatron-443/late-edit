@@ -301,12 +301,13 @@
 
 /* ——— Viewport stability (unlayered: must win over utilities) ——— */
 
-/* No horizontal overflow anywhere: off-canvas drawers and wide rows are clipped
-   at the document edge, so the browser never re-fits the viewport width. */
+/* Overlays are unmounted when closed and rendered through a shared portal, so
+   nothing sits off-canvas and the old `overflow-x: clip` masking workaround is
+   no longer needed. Only the intrinsic width guard remains. */
 html, body {
-  overflow-x: clip;
   max-width: 100%;
 }
+
 
 /* iOS Safari auto-zooms when a focused field is under 16px, and the zoom
    persists across navigation. Enforce a 16px minimum on touch widths only. */
