@@ -317,3 +317,11 @@ html, body {
     font-size: 16px;
   }
 }
+
+/* Mobile theme swap: while the full-screen veil dissolves, blur compositing is
+   suppressed so the transition stays a single compositor-only opacity animation. */
+html.theme-veil-active *,
+html.theme-veil-active *::before,
+html.theme-veil-active *::after {
+  backdrop-filter: none !important;
+}
