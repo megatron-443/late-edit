@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/accordion";
 
 import { useWishlist } from "@/lib/wishlist-context";
-import { useCart } from "@/lib/cart-context";
+import { formatHold, useCart } from "@/lib/cart-context";
 import { ProductTags } from "@/components/product-tags";
 
 export const Route = createFileRoute("/product/$id")({
@@ -99,10 +99,11 @@ function ProductPage() {
   const tax = getTaxInfo(product);
 
   const { has, toggle } = useWishlist();
-  const { add } = useCart();
+  const { add, has: inBagFn, detailed } = useCart();
   const saved = has(product.id);
-  const [size, setSize] = useState(product.sizes[0]);
-  const [added, setAdded] = useState(false);
+  const inBag = inBagFn(product.id);
+  const holdMs = detailed.find((d) => d.line.id === product.id)?.msLeft ?? null;
+  const canAdd = product.status === "available" && !!product.size && !inBag;
 
   // Single smart CTA: the sticky bar only appears once the inline button
   // has scrolled out of view, so two "Add to bag" buttons are never visible.
@@ -119,9 +120,9 @@ function ProductPage() {
   }, []);
 
   const addToBag = () => {
-    add(product.id, size);
-    setAdded(true);
+    add(product.id);
   };
+
 
   return (
     <div className="pt-28 pb-24 md:pb-0">
@@ -180,43 +181,42 @@ function ProductPage() {
             } />
           </div>
 
-          {/* Size — compact, uniform 44px chips */}
-          <div className="mt-10">
-            <div className="flex items-baseline justify-between mb-3">
+          {/* Size — fixed metadata. A one-of-one ships in exactly one size. */}
+          <div className="mt-10 border border-border p-5">
+            <div className="flex items-baseline justify-between">
               <div className="label-eyebrow">Size</div>
               <Link to="/services" className="text-[0.65rem] tracking-[0.16em] uppercase text-muted-foreground hover:text-foreground">
                 Size guide
               </Link>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {product.sizes.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSize(s)}
-                  aria-pressed={size === s}
-                  className={`label-eyebrow min-w-[3rem] h-11 px-3 border text-[0.65rem] transition-colors duration-200 press ${
-                    size === s
-                      ? "border-foreground bg-foreground !text-background"
-                      : "border-border hover:border-foreground"
-                  }`}
-                  style={{ transitionTimingFunction: "var(--ease-editorial)" }}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
+            {product.size ? (
+              <>
+                <div className="mt-2 font-display text-2xl">{product.size}</div>
+                <p className="mt-2 text-[0.72rem] text-muted-foreground leading-relaxed">
+                  This piece exists once, in this size only. Consult the measurements below before ordering.
+                </p>
+              </>
+            ) : (
+              <p className="mt-2 text-[0.72rem] text-muted-foreground leading-relaxed">
+                Sizing for this piece is being verified by the atelier — please enquire before ordering.
+              </p>
+            )}
           </div>
 
           <div ref={ctaRef} className="mt-10 flex gap-3">
             <button
               type="button"
               onClick={addToBag}
-              disabled={product.status !== "available"}
+              disabled={!canAdd}
               className="flex-1 label-eyebrow !text-background bg-foreground py-5 hover:bg-chrome transition-colors disabled:bg-muted disabled:!text-chrome-muted disabled:cursor-not-allowed press"
             >
-              {product.status === "available"
-                ? added ? "Added · In your bag" : "Add to Atelier Bag"
-                : "Unavailable"}
+              {product.status !== "available"
+                ? "Unavailable"
+                : !product.size
+                  ? "Enquire with the atelier"
+                  : inBag
+                    ? "Held in your bag"
+                    : "Add to Atelier Bag"}
             </button>
             <button
               type="button"
@@ -229,15 +229,25 @@ function ProductPage() {
             </button>
           </div>
 
-          {added && (
-            <Link
-              to="/checkout"
-              className="mt-3 inline-flex items-center gap-2 label-eyebrow border-b border-foreground/40 hover:border-foreground pb-0.5"
+          {inBag && (
+            <div
+              className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2"
               style={{ animation: "le-fade-scale 240ms var(--ease-editorial) both" }}
             >
-              Proceed to checkout →
-            </Link>
+              <Link
+                to="/checkout"
+                className="inline-flex items-center gap-2 label-eyebrow border-b border-foreground/40 hover:border-foreground pb-0.5"
+              >
+                Proceed to checkout →
+              </Link>
+              {holdMs !== null && (
+                <span className="text-[0.7rem] text-muted-foreground">
+                  Held for <span className="price-num">{formatHold(holdMs)}</span>
+                </span>
+              )}
+            </div>
           )}
+
 
 
           {/* Returns summary next to CTA */}
@@ -325,10 +335,10 @@ function ProductPage() {
       >
         <div className="flex items-center gap-3 px-4 pt-3">
           <div className="min-w-0 flex-1">
-            <div className="label-eyebrow !text-foreground/70 text-[0.6rem]">{product.serial} · {size}</div>
+            <div className="label-eyebrow !text-foreground/70 text-[0.6rem]">{product.serial} · {product.size}</div>
             <Price product={product} className="block text-base text-foreground truncate" as="div" />
           </div>
-          {added ? (
+          {inBag ? (
             <Link
               to="/checkout"
               className="label-eyebrow !text-background bg-foreground px-6 py-4 hover:bg-chrome transition-colors press"
@@ -339,7 +349,7 @@ function ProductPage() {
             <button
               type="button"
               onClick={addToBag}
-              disabled={product.status !== "available"}
+              disabled={!canAdd}
               className="label-eyebrow !text-background bg-foreground px-6 py-4 hover:bg-chrome transition-colors disabled:bg-muted disabled:!text-chrome-muted disabled:cursor-not-allowed press"
             >
               {product.status === "available" ? "Add to Bag" : "Unavailable"}

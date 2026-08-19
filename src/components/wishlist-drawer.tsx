@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist-context";
+import { useCart } from "@/lib/cart-context";
 import { products } from "@/lib/mockData";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
 import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
@@ -9,6 +10,7 @@ import { Price } from "./price";
 
 export function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { ids, remove } = useWishlist();
+  const { add, has: inBag } = useCart();
   const items = products.filter((p) => ids.includes(p.id));
   useBodyScrollLock(open);
 
@@ -75,6 +77,20 @@ export function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () =
                     </Link>
                     <div className="mt-1 text-xs text-muted-foreground">{p.fabricType}</div>
                     <Price product={p} className="mt-2 block text-sm chrome-text" as="div" />
+                    <div className="mt-3 flex items-center gap-3">
+                      <span className="label-eyebrow !text-foreground/70 text-[0.6rem]">Size {p.size}</span>
+                      <button
+                        type="button"
+                        disabled={p.status !== "available" || inBag(p.id)}
+                        onClick={() => {
+                          const r = add(p.id);
+                          if (r.ok) remove(p.id);
+                        }}
+                        className="label-eyebrow text-[0.6rem] border border-border px-3 py-2 hover:border-foreground transition-colors disabled:opacity-40 disabled:cursor-not-allowed press"
+                      >
+                        {p.status !== "available" ? "Unavailable" : inBag(p.id) ? "In your bag" : "Move to bag"}
+                      </button>
+                    </div>
                   </div>
                   <button
                     onClick={() => remove(p.id)}
@@ -92,7 +108,14 @@ export function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () =
             className="px-8 py-6 border-t border-border"
             style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}
           >
-            <p className="text-xs text-muted-foreground">Wishlist saved locally to this device.</p>
+            <Link
+              to="/wishlist"
+              onClick={onClose}
+              className="block w-full text-center label-eyebrow border border-border py-4 hover:border-foreground transition-colors press"
+            >
+              View full wishlist
+            </Link>
+            <p className="mt-3 text-xs text-muted-foreground text-center">Wishlist saved locally to this device.</p>
           </div>
         </div>
       </aside>

@@ -79,7 +79,7 @@ export function applyFilters(items: Product[], f: CatalogueFilters): Product[] {
   const out = items.filter((p) => {
     if (f.category !== "All" && p.category !== f.category) return false;
     if (f.layers.length > 0 && !f.layers.includes(p.layer)) return false;
-    if (f.sizes.length > 0 && !p.sizes.some((s) => f.sizes.includes(s))) return false;
+    if (f.sizes.length > 0 && !f.sizes.includes(p.size)) return false;
     if (p.price < band.min) return false;
     if (band.max !== null && p.price > band.max) return false;
     if (!f.includeSoldOut && p.status === "sold_out") return false;
