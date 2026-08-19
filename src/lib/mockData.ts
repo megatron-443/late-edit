@@ -50,7 +50,8 @@ export interface Product {
   price: number; // base EUR
   currency: string;
   images: string[];
-  sizes: string[];
+  /** One-of-one: a single unique unit ships in exactly one fixed size. */
+  size: string;
   /** Max 4 — one per tag category. Rendered via <ProductTags />. */
   tags: ProductTag[];
   status: ProductStatus;
@@ -94,7 +95,7 @@ export const products: Product[] = [
     price: 2450,
     currency: "EUR",
     images: [stock("1551028719-00167b16eac5"), stock("1490481651871-ab68de25d43d"), stock("1520975916090-3105956dac38")],
-    sizes: ["S", "M", "L"],
+    size: "M",
     tags: [{ category: "rarity", label: "1-of-1" }, { category: "material", label: "Reclaimed Leather" }, { category: "craft", label: "Hand-Finished" }, { category: "status", label: "Ships in 48h" }],
     status: "available",
     description:
@@ -112,7 +113,7 @@ export const products: Product[] = [
     price: 1180,
     currency: "EUR",
     images: [stock("1541099649105-f69ad21f3246"), stock("1542272604-787c3835535d"), stock("1475178626620-a4d074967452")],
-    sizes: ["28", "30", "32", "34"],
+    size: "32",
     tags: [{ category: "rarity", label: "1-of-1" }, { category: "material", label: "Deadstock Denim" }, { category: "craft", label: "Reconstructed" }, { category: "status", label: "Last Piece" }],
     status: "available",
     description:
@@ -130,7 +131,7 @@ export const products: Product[] = [
     price: 890,
     currency: "EUR",
     images: [stock("1556821840-3a63f95609a7"), stock("1620799140408-edc6dcb6d633"), stock("1620799139652-715e4d5b0e46")],
-    sizes: ["One Size"],
+    size: "One Size",
     tags: [{ category: "rarity", label: "Archive Piece" }, { category: "material", label: "Upcycled" }, { category: "craft", label: "Atelier Cut" }, { category: "status", label: "Reserved" }],
     status: "reserved",
     description:
@@ -148,7 +149,7 @@ export const products: Product[] = [
     price: 3200,
     currency: "EUR",
     images: [stock("1594938298603-c8148c4dae35"), stock("1507003211169-0a1dd7228f2d"), stock("1617137968427-85924c800a22")],
-    sizes: ["44", "46", "48", "50"],
+    size: "48",
     tags: [{ category: "rarity", label: "1-of-1" }, { category: "material", label: "Reclaimed Wool" }, { category: "craft", label: "Hand-Finished" }, { category: "status", label: "Ships in 48h" }],
     status: "available",
     description:
@@ -166,7 +167,7 @@ export const products: Product[] = [
     price: 1450,
     currency: "EUR",
     images: [stock("1622445275463-afa2ab738c34"), stock("1548883354-94bcfe321cbb"), stock("1584865288642-42078afe6942")],
-    sizes: ["30", "32", "34"],
+    size: "32",
     tags: [{ category: "rarity", label: "Limited Run" }, { category: "material", label: "Deadstock" }, { category: "craft", label: "Reconstructed" }, { category: "status", label: "Final Sale" }],
     status: "sold_out",
     description:
@@ -184,7 +185,7 @@ export const products: Product[] = [
     price: 2780,
     currency: "EUR",
     images: [stock("1595777457583-95e059d581b8"), stock("1571908599407-cdb918ed83bf"), stock("1583744946564-b52ac1c389c8")],
-    sizes: ["XS", "S", "M"],
+    size: "S",
     tags: [{ category: "rarity", label: "1-of-1" }, { category: "material", label: "Vintage Silk" }, { category: "craft", label: "Hand-Dyed" }, { category: "status", label: "Ships in 48h" }],
     status: "available",
     description:
@@ -202,7 +203,7 @@ export const products: Product[] = [
     price: 1980,
     currency: "EUR",
     images: [stock("1584917865442-de89df76afd3"), stock("1548036328-c9fa89d128fa"), stock("1590874103328-eac38a683ce7")],
-    sizes: ["One Size"],
+    size: "One Size",
     tags: [{ category: "rarity", label: "Archive Piece" }, { category: "material", label: "Reclaimed Leather" }, { category: "craft", label: "Hand-Finished" }, { category: "status", label: "Last Piece" }],
     status: "available",
     description:

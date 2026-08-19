@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Check, Lock, ShieldCheck, Truck } from "lucide-react";
-import { useCart } from "@/lib/cart-context";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { AlertTriangle, Check, Lock, ShieldCheck, Timer, Truck } from "lucide-react";
+import { formatHold, useCart } from "@/lib/cart-context";
 import { useSettings } from "@/lib/settings-context";
 import { formatAmount } from "@/lib/catalogue";
 import { EditorialSelect } from "@/components/editorial-select";
@@ -48,32 +48,122 @@ const PAYMENTS = [
   { value: "cod", label: "Cash on Delivery" },
 ];
 
+const FORM_KEY = "late-edit-checkout";
+
+type CheckoutState = {
+  step: number;
+  country: string;
+  state: string;
+  shipping: string;
+  payment: string;
+  form: { name: string; email: string; phone: string; address: string; city: string; pincode: string };
+};
+
+const EMPTY_CHECKOUT: CheckoutState = {
+  step: 0,
+  country: "IN",
+  state: "Maharashtra",
+  shipping: "standard",
+  payment: "upi",
+  form: { name: "", email: "", phone: "", address: "", city: "", pincode: "" },
+};
+
+/** RFC-pragmatic email check: single @, no whitespace, real TLD. */
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/;
+/** Same 6-digit rule the PDP delivery estimator enforces. */
+const IN_PIN_RE = /^\d{6}$/;
+const INTL_POSTCODE_RE = /^[A-Za-z0-9][A-Za-z0-9 -]{2,9}$/;
+
 function CheckoutPage() {
-  const { detailed, subtotal, count, remove, clear } = useCart();
+  const { detailed, subtotal, count, remove, clear, revalidate, soonestHoldMs, released, acknowledgeReleased } = useCart();
   const { currency } = useSettings();
 
-  const [step, setStep] = useState(0);
   const [placed, setPlaced] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
 
-  const [country, setCountry] = useState("IN");
-  const [state, setState] = useState("Maharashtra");
-  const [shipping, setShipping] = useState("standard");
-  const [payment, setPayment] = useState("upi");
-  const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", pincode: "" });
+  // Checkout progress + delivery details survive a refresh, like the bag.
+  const [checkout, setCheckout] = useState<CheckoutState>(EMPTY_CHECKOUT);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(FORM_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setCheckout({
+          ...EMPTY_CHECKOUT,
+          ...parsed,
+          step: Math.min(2, Math.max(0, Number(parsed?.step) || 0)),
+          form: { ...EMPTY_CHECKOUT.form, ...(parsed?.form ?? {}) },
+        });
+      }
+    } catch {}
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    localStorage.setItem(FORM_KEY, JSON.stringify(checkout));
+  }, [checkout, hydrated]);
+
+  const patch = useCallback(
+    (p: Partial<CheckoutState>) => setCheckout((prev) => ({ ...prev, ...p })),
+    [],
+  );
+
+  const { step, country, state, shipping, payment, form } = checkout;
+  const setStep = (v: number) => patch({ step: v });
+  const setCountry = (v: string) => patch({ country: v });
+  const setState = (v: string) => patch({ state: v });
+  const setShipping = (v: string) => patch({ shipping: v });
+  const setPayment = (v: string) => patch({ payment: v });
+  const setForm = (v: CheckoutState["form"]) => patch({ form: v });
 
   const shipCost = SHIPPING.find((s) => s.value === shipping)?.cost ?? 0;
   const total = subtotal + shipCost;
 
+  const postcodeValid = useMemo(() => {
+    const pin = form.pincode.trim();
+    return country === "IN" ? IN_PIN_RE.test(pin) : INTL_POSTCODE_RE.test(pin);
+  }, [form.pincode, country]);
+
+  const emailValid = EMAIL_RE.test(form.email.trim());
+
   const deliveryValid = useMemo(
     () =>
       form.name.trim().length > 1 &&
-      /.+@.+\..+/.test(form.email) &&
-      form.phone.trim().length >= 7 &&
+      emailValid &&
+      form.phone.replace(/\D/g, "").length >= 7 &&
       form.address.trim().length > 4 &&
       form.city.trim().length > 1 &&
-      form.pincode.trim().length >= 4,
-    [form],
+      postcodeValid,
+    [form, emailValid, postcodeValid],
   );
+
+  const confirmOrder = () => {
+    // Stock is re-checked against live status + holds at the last moment,
+    // so a sold or lapsed piece can never be bought from a stale bag.
+    const result = revalidate();
+    if (!result.ok) {
+      setStockError(
+        result.dropped
+          .map((d) =>
+            d.reason === "sold"
+              ? `${d.title} has been claimed`
+              : d.reason === "expired"
+                ? `The hold on ${d.title} lapsed`
+                : `${d.title} is no longer available`,
+          )
+          .join(" · "),
+      );
+      setStep(0);
+      return;
+    }
+    clear();
+    localStorage.removeItem(FORM_KEY);
+    setCheckout(EMPTY_CHECKOUT);
+    setPlaced(true);
+  };
 
   if (placed) {
     return (
@@ -141,23 +231,46 @@ function CheckoutPage() {
         </ol>
 
         <div className="mt-12 grid lg:grid-cols-[1.5fr_1fr] gap-12 lg:gap-16">
+          <div>
+            {(stockError || released.length > 0) && (
+              <div className="mb-8 border border-border p-5" role="status">
+                <div className="flex items-center gap-2 label-eyebrow !text-foreground">
+                  <AlertTriangle size={13} strokeWidth={1.6} /> Bag updated
+                </div>
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                  {stockError ?? `${released.join(", ")} ${released.length === 1 ? "was" : "were"} released — the 20-minute hold lapsed or the piece sold.`}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setStockError(null); acknowledgeReleased(); }}
+                  className="mt-3 label-eyebrow text-muted-foreground hover:!text-foreground"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
           <div style={{ animation: "le-fade-scale 260ms var(--ease-editorial) both" }} key={step}>
             {step === 0 && (
               <ul className="divide-y divide-border border-y border-border">
-                {detailed.map(({ line, product }) => (
-                  <li key={`${line.id}-${line.size}`} className="flex gap-5 py-5">
+                {detailed.map(({ line, product, msLeft }) => (
+                  <li key={line.id} className="flex gap-5 py-5">
                     <img src={product.images[0]} alt={product.title} className="w-20 h-24 object-cover object-top shrink-0" />
                     <div className="min-w-0 flex-1">
                       <div className="label-eyebrow !text-foreground/70">{product.serial} · Size {line.size}</div>
                       <div className="font-display text-lg">{product.title}</div>
                       <div className="mt-1 text-xs text-muted-foreground">{product.fabricType}</div>
-                      <button
-                        type="button"
-                        onClick={() => remove(line.id, line.size)}
-                        className="mt-3 text-[0.65rem] tracking-[0.16em] uppercase text-muted-foreground hover:text-foreground"
-                      >
-                        Remove
-                      </button>
+                      <div className="mt-3 flex items-center gap-4">
+                        <span className="inline-flex items-center gap-1.5 text-[0.65rem] tracking-[0.14em] uppercase text-muted-foreground">
+                          <Timer size={12} strokeWidth={1.6} /> Held <span className="price-num">{formatHold(msLeft)}</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => remove(line.id)}
+                          className="text-[0.65rem] tracking-[0.16em] uppercase text-muted-foreground hover:text-foreground"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                     <Price product={product} className="text-sm shrink-0" as="div" />
                   </li>
@@ -169,7 +282,13 @@ function CheckoutPage() {
               <div className="space-y-5">
                 <div className="grid sm:grid-cols-2 gap-5">
                   <Field label="Full name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-                  <Field label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
+                  <Field
+                    label="Email"
+                    type="email"
+                    value={form.email}
+                    onChange={(v) => setForm({ ...form, email: v })}
+                    error={form.email.trim().length > 0 && !emailValid ? "Enter a valid email address." : undefined}
+                  />
                   <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
                   <EditorialSelect
                     label="Country"
@@ -186,7 +305,20 @@ function CheckoutPage() {
                   ) : (
                     <Field label="Region" value={state} onChange={setState} />
                   )}
-                  <Field label="Postal code" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} />
+                  <Field
+                    label={country === "IN" ? "Pincode" : "Postal code"}
+                    value={form.pincode}
+                    inputMode={country === "IN" ? "numeric" : undefined}
+                    maxLength={country === "IN" ? 6 : 10}
+                    onChange={(v) => setForm({ ...form, pincode: country === "IN" ? v.replace(/\D/g, "") : v })}
+                    error={
+                      form.pincode.trim().length > 0 && !postcodeValid
+                        ? country === "IN"
+                          ? "Enter a valid 6-digit Indian pincode."
+                          : "Enter a valid postal code."
+                        : undefined
+                    }
+                  />
                 </div>
 
                 <div className="pt-4">
@@ -244,7 +376,7 @@ function CheckoutPage() {
               ) : (
                 <button
                   type="button"
-                  onClick={() => { clear(); setPlaced(true); }}
+                  onClick={confirmOrder}
                   className="label-eyebrow !text-background bg-foreground px-8 py-4 hover:bg-chrome transition-colors press"
                 >
                   Confirm order
@@ -255,6 +387,8 @@ function CheckoutPage() {
               <p className="mt-3 text-[0.7rem] text-muted-foreground">Complete every delivery field to continue.</p>
             )}
           </div>
+          </div>
+
 
           {/* Summary */}
           <aside className="lg:sticky lg:top-28 lg:self-start border border-border p-6">
@@ -268,8 +402,16 @@ function CheckoutPage() {
               <span className="label-eyebrow !text-foreground">Total</span>
               <span className="price-num text-lg">{formatAmount(total, currency)}</span>
             </div>
-            <p className="mt-5 text-[0.65rem] text-muted-foreground leading-relaxed">
-              One-of-one pieces are held for 20 minutes while you complete checkout.
+            <p className="mt-5 inline-flex items-center gap-2 text-[0.65rem] text-muted-foreground leading-relaxed">
+              <Timer size={12} strokeWidth={1.6} />
+              {soonestHoldMs !== null ? (
+                <span>
+                  Hold expires in <span className="price-num">{formatHold(soonestHoldMs)}</span>. Stock is
+                  re-checked before payment is confirmed.
+                </span>
+              ) : (
+                <span>One-of-one pieces are held for 20 minutes while you complete checkout.</span>
+              )}
             </p>
           </aside>
         </div>
@@ -292,11 +434,17 @@ function Field({
   value,
   onChange,
   type = "text",
+  error,
+  inputMode,
+  maxLength,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
+  error?: string;
+  inputMode?: "numeric";
+  maxLength?: number;
 }) {
   return (
     <label className="block">
@@ -304,9 +452,16 @@ function Field({
       <input
         type={type}
         value={value}
+        size={1}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        aria-invalid={!!error}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-border bg-transparent px-3 h-11 text-sm text-foreground placeholder:text-muted-foreground focus:border-foreground focus:outline-none transition-colors"
+        className={`w-full min-w-0 border bg-transparent px-3 h-11 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors ${
+          error ? "border-foreground/60" : "border-border focus:border-foreground"
+        }`}
       />
+      {error && <span className="mt-1.5 block text-[0.68rem] text-muted-foreground">{error}</span>}
     </label>
   );
 }

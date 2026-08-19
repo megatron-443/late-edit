@@ -58,19 +58,14 @@ export function ProductCard({ product }: { product: Product }) {
           )}
 
           {/* Size availability preview — desktop hover only */}
-          {product.status === "available" && product.sizes.length > 0 && (
+          {product.status === "available" && product.size && (
             <div
               className="hidden md:flex absolute inset-x-0 bottom-0 items-center justify-center gap-4 bg-background/90 backdrop-blur-sm py-3 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:hidden"
               aria-hidden
             >
-              {product.sizes.slice(0, 6).map((s) => (
-                <span
-                  key={s}
-                  className="price-num text-[0.7rem] tracking-[0.18em] uppercase text-foreground/80"
-                >
-                  {s}
-                </span>
-              ))}
+              <span className="price-num text-[0.7rem] tracking-[0.18em] uppercase text-foreground/80">
+                Size {product.size}
+              </span>
             </div>
           )}
 

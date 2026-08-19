@@ -38,7 +38,7 @@ export function CatalogueGrid({
   const filtered = useMemo(() => applyFilters(items, state), [items, state]);
 
   const availableSizes = useMemo(
-    () => new Set(items.flatMap((p) => p.sizes)),
+    () => new Set(items.map((p) => p.size)),
     [items],
   );
 
