@@ -1,3 +1,4 @@
+import { SmartImage } from "@/components/smart-image";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Heart, RotateCcw, MapPin } from "lucide-react";

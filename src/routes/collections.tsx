@@ -1,3 +1,4 @@
+import { SmartImage } from "@/components/smart-image";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { collections, getProduct } from "@/lib/mockData";
 

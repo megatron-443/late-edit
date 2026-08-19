@@ -1,3 +1,4 @@
+import { SmartImage } from "@/components/smart-image";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, X } from "lucide-react";
 import { products } from "@/lib/mockData";

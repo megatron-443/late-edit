@@ -1,3 +1,4 @@
+import { SmartImage } from "@/components/smart-image";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Check, Lock, ShieldCheck, Timer, Truck } from "lucide-react";
