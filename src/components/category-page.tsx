@@ -6,9 +6,10 @@ type Props = {
   title: string;
   intro?: string;
   items: Product[];
+  initialCategory?: string;
 };
 
-export function CategoryPage({ eyebrow, title, intro, items }: Props) {
+export function CategoryPage({ eyebrow, title, intro, items, initialCategory }: Props) {
   return (
     <div className="pt-24 pb-24">
       <div className="max-w-3xl mx-auto text-center px-6 py-16 md:py-24">
@@ -22,7 +23,7 @@ export function CategoryPage({ eyebrow, title, intro, items }: Props) {
           The atelier is preparing the next release. Return soon.
         </div>
       ) : (
-        <CatalogueGrid items={items} />
+        <CatalogueGrid items={items} initialCategory={initialCategory} />
       )}
     </div>
   );

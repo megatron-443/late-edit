@@ -261,8 +261,8 @@ export const collections = [
 ];
 
 // Editorial menu — expandable categories with optional sub-items.
-export type MenuLeaf = { label: string; to: string };
-export type MenuNode = { label: string; to?: string; children?: MenuLeaf[] };
+export type MenuLeaf = { label: string; to: string; search?: { category: string } };
+export type MenuNode = { label: string; to?: string; search?: { category: string }; children?: MenuLeaf[] };
 export type MenuSection = { eyebrow: string; items: MenuNode[] };
 
 export const menuSections: MenuSection[] = [
@@ -275,22 +275,21 @@ export const menuSections: MenuSection[] = [
         label: "Women",
         to: "/women",
         children: [
-          { label: "Jackets & Outerwear", to: "/women" },
-          { label: "Tops & Shirts", to: "/women" },
-          { label: "Dresses & Sets", to: "/women" },
-          { label: "Trousers & Denim", to: "/women" },
-          { label: "Accessories", to: "/women" },
+          { label: "All Womenswear", to: "/women" },
+          { label: "Outerwear", to: "/women", search: { category: "Outerwear" } },
+          { label: "Knitwear", to: "/women", search: { category: "Knitwear" } },
+          { label: "Dresses & Sets", to: "/women", search: { category: "Womenswear" } },
+          { label: "Trousers & Denim", to: "/women", search: { category: "Trousers" } },
         ],
       },
       {
         label: "Men",
         to: "/men",
         children: [
-          { label: "Jackets & Outerwear", to: "/men" },
-          { label: "Hoodies & Sweatshirts", to: "/men" },
-          { label: "T-Shirts & Tops", to: "/men" },
-          { label: "Trousers & Denim", to: "/men" },
-          { label: "Accessories", to: "/men" },
+          { label: "All Menswear", to: "/men" },
+          { label: "Outerwear", to: "/men", search: { category: "Outerwear" } },
+          { label: "Knitwear", to: "/men", search: { category: "Knitwear" } },
+          { label: "Trousers & Denim", to: "/men", search: { category: "Trousers" } },
         ],
       },
       { label: "Atelier Bags", to: "/bags" },

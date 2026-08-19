@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { FilterModal, type FilterGroup } from "@/components/filter-modal";
@@ -23,12 +23,27 @@ import {
 export function CatalogueGrid({
   items,
   showCategoryFilter = true,
+  initialCategory,
 }: {
   items: Product[];
   showCategoryFilter?: boolean;
+  /** Preselects the category filter (e.g. from a `?category=` link in the menu). */
+  initialCategory?: string;
 }) {
   const { currency } = useSettings();
-  const [state, setState] = useState<CatalogueFilters>(DEFAULT_FILTERS);
+  const [state, setState] = useState<CatalogueFilters>(() =>
+    initialCategory && filters.category.includes(initialCategory)
+      ? { ...DEFAULT_FILTERS, category: initialCategory }
+      : DEFAULT_FILTERS,
+  );
+
+  useEffect(() => {
+    setState((cur) => ({
+      ...cur,
+      category:
+        initialCategory && filters.category.includes(initialCategory) ? initialCategory : "All",
+    }));
+  }, [initialCategory]);
   const [open, setOpen] = useState(false);
 
   const patch = (p: Partial<CatalogueFilters>) => setState((s) => ({ ...s, ...p }));
