@@ -1,7 +1,5 @@
-import { useEffect } from "react";
 import { X, Check } from "lucide-react";
-import { lockBodyScroll } from "@/hooks/use-body-scroll-lock";
-import { OverlayPortal } from "./overlay-portal";
+import { Overlay } from "./overlay";
 
 /** Single-choice chip row (category, price band, sort). */
 export type SingleGroup = {
@@ -48,34 +46,18 @@ type Props = {
  * Bottom-sheet on mobile, centered card on desktop; smooth-eased reveal.
  */
 export function FilterModal({ open, onClose, groups, onReset, resultCount }: Props) {
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    document.addEventListener("keydown", onKey);
-    const unlock = lockBodyScroll();
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      unlock();
-    };
-  }, [open, onClose]);
-
-  if (!open) return null;
-
   return (
-    <OverlayPortal>
-    <div className="fixed inset-0 z-[75]" role="dialog" aria-modal="true" aria-label="Filter catalogue">
-      <button
-        aria-label="Close filters"
-        onClick={onClose}
-        className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
-      />
-      <div
-        className="absolute inset-x-0 bottom-0 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[min(640px,92vw)] max-h-[90dvh] md:max-h-[80dvh] bg-background border border-border flex flex-col shadow-2xl"
-        style={{
-          animation: "le-reveal-up 520ms var(--ease-editorial) both",
-          paddingBottom: "env(safe-area-inset-bottom)",
-        }}
-      >
+    <Overlay
+      open={open}
+      onClose={onClose}
+      label="Filter catalogue"
+      surface="sheet"
+      z={75}
+      exitMs={460}
+      panelClassName="flex flex-col"
+      panelStyle={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      backdropClassName="bg-foreground/40 backdrop-blur-sm"
+    >
         <header className="flex items-start justify-between px-6 pt-6 pb-4 border-b border-border">
           <div>
             <div className="label-eyebrow">Refine</div>
