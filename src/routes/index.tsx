@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SmartImage } from "@/components/smart-image";
 import { heroContent, missionBanner, products, heroImage, menBannerImage, editorialPlateImage } from "@/lib/mockData";
 import { ProductCard } from "@/components/product-card";
 import { PillCTA } from "@/components/pill-cta";
@@ -28,12 +29,15 @@ function HomePage() {
       {/* HERO — full-bleed image with editorial statement overlaid */}
       <section className="relative w-full">
         <div className="w-full aspect-[4/5] sm:aspect-[16/10] md:aspect-[16/8] overflow-hidden bg-[oklch(0.96_0.003_85)] dark:bg-surface-elevated">
-          <img
+          <SmartImage
             src={heroImage}
             alt="LATE EDIT — AW26 editorial"
-            className="h-full w-full object-cover object-[center_35%]"
+            ratio="3/2"
             width={1800}
             height={1200}
+            loading="eager"
+            fetchPriority="high"
+            className="h-full w-full object-cover object-[center_35%]"
           />
         </div>
 
@@ -62,10 +66,11 @@ function HomePage() {
       {/* EDITORIAL BAND — dark atelier menswear */}
       <section className="w-full mt-8">
         <div className="w-full aspect-[21/9] overflow-hidden bg-[oklch(0.96_0.003_85)] dark:bg-surface-elevated">
-          <img
+          <SmartImage
             src={menBannerImage}
             alt=""
-            loading="lazy"
+            aria-hidden
+            ratio="3/2"
             className="h-full w-full object-cover object-center"
           />
         </div>
@@ -78,11 +83,11 @@ function HomePage() {
       {/* EDITORIAL PLATE — full-bleed, image-only pacing */}
       <section className="w-full">
         <figure className="relative w-full aspect-[21/9] overflow-hidden bg-[oklch(0.94_0.004_85)] dark:bg-surface-elevated">
-          <img
+          <SmartImage
             src={editorialPlateImage}
             alt=""
             aria-hidden
-            loading="lazy"
+            ratio="3/2"
             className="h-full w-full object-cover object-center"
           />
           <figcaption className="absolute inset-x-0 bottom-6 md:bottom-10 flex justify-center pointer-events-none">

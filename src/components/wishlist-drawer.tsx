@@ -4,6 +4,7 @@ import { useWishlist } from "@/lib/wishlist-context";
 import { useCart } from "@/lib/cart-context";
 import { products } from "@/lib/mockData";
 import { Overlay } from "./overlay";
+import { SmartImage } from "@/components/smart-image";
 import { Price } from "./price";
 
 export function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -41,7 +42,7 @@ export function WishlistDrawer({ open, onClose }: { open: boolean; onClose: () =
                   style={{ ["--i" as string]: i } as React.CSSProperties}
                 >
                   <Link to="/product/$id" params={{ id: p.id }} onClick={onClose} className="shrink-0">
-                    <img src={p.images[0]} alt={p.title} className="w-20 h-24 object-cover object-top transition-transform duration-500 ease-editorial hover:scale-[1.02]" />
+                    <SmartImage src={p.images[0]} alt={p.title} ratio="3/4" className="w-20 h-24 object-cover object-top transition-transform duration-500 ease-editorial hover:scale-[1.02]" />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <div className="label-eyebrow !text-foreground/80">{p.serial}</div>

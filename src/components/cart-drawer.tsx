@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { X, Trash2, Timer } from "lucide-react";
 import { Overlay } from "./overlay";
+import { SmartImage } from "@/components/smart-image";
 import { products } from "@/lib/mockData";
 import { formatHold, useCart } from "@/lib/cart-context";
 import { useSettings } from "@/lib/settings-context";
@@ -68,7 +69,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                           onClick={onClose}
                           className="flex items-center gap-4 group"
                         >
-                          <img src={p.images[0]} alt={p.title} className="w-16 h-20 object-cover object-top shrink-0" />
+                          <SmartImage src={p.images[0]} alt={p.title} ratio="3/4" className="w-16 h-20 object-cover object-top shrink-0" />
                           <div className="min-w-0 flex-1">
                             <div className="label-eyebrow !text-foreground/70">{p.serial}</div>
                             <div className="font-display text-base truncate group-hover:chrome-text">{p.title}</div>
@@ -86,7 +87,7 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
                 {detailed.map(({ line, product, msLeft }) => (
                   <li key={line.id} className="flex gap-4 px-6 md:px-8 py-5">
                     <Link to="/product/$id" params={{ id: product.id }} onClick={onClose} className="shrink-0">
-                      <img src={product.images[0]} alt={product.title} className="w-20 h-24 object-cover object-top" />
+                      <SmartImage src={product.images[0]} alt={product.title} ratio="3/4" className="w-20 h-24 object-cover object-top" />
                     </Link>
                     <div className="min-w-0 flex-1">
                       <div className="label-eyebrow !text-foreground/70">{product.serial} · Size {line.size}</div>

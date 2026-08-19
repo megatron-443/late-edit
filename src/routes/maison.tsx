@@ -24,10 +24,10 @@ function MaisonPage() {
 
       <div className="max-w-6xl mx-auto px-6">
         <div className="aspect-[16/9] overflow-hidden bg-[oklch(0.96_0.003_85)] dark:bg-surface-elevated">
-          <img
+          <SmartImage
             src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1600&h=900&q=80"
-            alt="Atelier"
-            loading="lazy"
+            alt="Inside the LATE EDIT atelier"
+            ratio="16/9"
             className="h-full w-full object-cover object-center"
           />
         </div>

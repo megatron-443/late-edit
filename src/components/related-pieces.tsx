@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { SmartImage } from "@/components/smart-image";
 import { products, type Product } from "@/lib/mockData";
 import { Price } from "@/components/price";
 
@@ -34,10 +35,10 @@ export function RelatedPieces({ current }: { current: Product }) {
               className="group snap-start shrink-0 w-[70%] sm:w-[42%] md:w-[28%] lg:w-[22%]"
             >
               <div className="aspect-[3/4] bg-surface overflow-hidden">
-                <img
+                <SmartImage
                   src={p.images[0]}
                   alt={p.title}
-                  loading="lazy"
+                  ratio="3/4"
                   className="h-full w-full object-cover object-top transition-transform duration-[900ms] ease-out group-hover:scale-[1.03]"
                 />
               </div>

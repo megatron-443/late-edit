@@ -3,6 +3,7 @@ import { Search, X } from "lucide-react";
 import { searchSuggestions, trendingTags, products } from "@/lib/mockData";
 import { Link } from "@tanstack/react-router";
 import { Overlay } from "./overlay";
+import { SmartImage } from "@/components/smart-image";
 import { useRecentSearches } from "@/lib/recent-searches";
 
 const PLACEHOLDER_DESKTOP = "Search serials, fabrics, silhouettes…";
@@ -190,7 +191,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                         }}
                         className="flex items-center gap-4 group"
                       >
-                        <img src={p.images[0]} alt={p.title} className="w-14 h-16 object-cover object-top" />
+                        <SmartImage src={p.images[0]} alt={p.title} ratio="3/4" className="w-14 h-16 object-cover object-top" />
                         <div className="min-w-0">
                           <div className="label-eyebrow !text-foreground/80">{p.serial}</div>
                           <div className="font-display text-lg group-hover:chrome-text truncate">{p.title}</div>

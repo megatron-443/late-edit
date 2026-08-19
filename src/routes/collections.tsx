@@ -38,7 +38,7 @@ function CollectionsPage() {
               <div className={`grid grid-cols-2 gap-4 ${idx % 2 === 0 ? "" : "md:order-1"}`}>
                 {pieces.map((p) => p && (
                   <Link key={p.id} to="/product/$id" params={{ id: p.id }} className="block bg-[oklch(0.96_0.003_85)] dark:bg-surface-elevated aspect-[3/4] overflow-hidden group">
-                    <img src={p.images[0]} alt={p.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
+                    <SmartImage src={p.images[0]} alt={p.title} ratio="3/4" className="h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
                   </Link>
                 ))}
               </div>
