@@ -194,7 +194,14 @@ function CheckoutPage() {
       <div className="pt-32 pb-32 px-6 text-center">
         <div className="label-eyebrow">Checkout</div>
         <h1 className="mt-4 font-display text-4xl md:text-5xl">Your bag is quiet.</h1>
-        <p className="mt-5 text-sm text-muted-foreground">Add a piece to begin checkout.</p>
+        {released.length > 0 ? (
+          <p className="mt-5 text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+            {released.join(", ")} {released.length === 1 ? "was" : "were"} released back to the floor — the
+            20-minute hold lapsed or the piece was claimed.
+          </p>
+        ) : (
+          <p className="mt-5 text-sm text-muted-foreground">Add a piece to begin checkout.</p>
+        )}
         <Link
           to="/shop"
           className="mt-10 inline-block label-eyebrow !text-background bg-foreground px-8 py-4 hover:bg-chrome transition-colors press"
