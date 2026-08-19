@@ -6,7 +6,7 @@ import {
   PINNED_CURRENCIES,
   type Currency,
 } from "@/lib/settings-context";
-import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
+import { Overlay } from "./overlay";
 
 type Props = {
   open: boolean;
@@ -23,10 +23,7 @@ export function CurrencyPicker({ open, onClose, value, onChange }: Props) {
   useEffect(() => {
     if (!open) return;
     setQ("");
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -56,28 +53,18 @@ export function CurrencyPicker({ open, onClose, value, onChange }: Props) {
     onClose();
   };
 
-  const { mounted, shown } = useOverlayPresence(open, 500);
-
-  if (!mounted) return null;
-
   return (
-    <OverlayPortal>
-    <div
-      className={`fixed inset-0 z-[90] transition-opacity duration-300 ${
-        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-      }`}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Select currency"
+    <Overlay
+      open={open}
+      onClose={onClose}
+      label="Select currency"
+      surface="sheet"
+      z={90}
+      exitMs={460}
+      panelRef={dialogRef}
+      panelStyle={{ maxHeight: "min(85dvh, 720px)" }}
+      backdropClassName="bg-foreground/40 backdrop-blur-sm"
     >
-      <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={onClose} />
-      <div
-        ref={dialogRef}
-        className={`absolute left-1/2 -translate-x-1/2 bottom-0 md:bottom-auto md:top-1/2 md:-translate-y-1/2 w-full md:max-w-md bg-background border border-border shadow-2xl transition-all duration-[460ms] ease-editorial will-change-transform ${
-          shown ? "translate-y-0 opacity-100 md:scale-100" : "translate-y-full md:translate-y-4 opacity-0 md:scale-[0.98]"
-        }`}
-        style={{ maxHeight: "min(85dvh, 720px)" }}
-      >
         <div className="flex items-center justify-between px-5 md:px-6 pt-5 pb-3 border-b border-border">
           <div>
             <div className="label-eyebrow !text-muted-foreground">Region</div>
