@@ -295,9 +295,7 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
           {/* Compact settings accordion */}
           <SettingsAccordion open={settingsOpen} onToggle={() => setSettingsOpen((v) => !v)} />
         </div>
-      </aside>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }
 
