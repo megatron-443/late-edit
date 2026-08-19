@@ -2,8 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 import { searchSuggestions, trendingTags, products } from "@/lib/mockData";
 import { Link } from "@tanstack/react-router";
-import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
-import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
+import { Overlay } from "./overlay";
 import { useRecentSearches } from "@/lib/recent-searches";
 
 const PLACEHOLDER_DESKTOP = "Search serials, fabrics, silhouettes…";
@@ -16,7 +15,6 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   // markup matches; the mobile variant is swapped in after hydration.
   const [placeholder, setPlaceholder] = useState(PLACEHOLDER_DESKTOP);
   const { recent, addRecent, removeRecent, clearRecent } = useRecentSearches();
-  useBodyScrollLock(open);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
@@ -28,12 +26,8 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
 
   useEffect(() => {
     if (!open) return;
-    inputRef.current?.focus();
     setQ("");
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
+  }, [open]);
 
   const matches = useMemo(() => {
     if (!q.trim()) return [];
@@ -59,24 +53,16 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
     if (q.trim()) addRecent(q);
   };
 
-  const { mounted, shown } = useOverlayPresence(open, 560);
-
-  if (!mounted) return null;
-
   return (
-    <OverlayPortal>
-    <div
-      className={`fixed inset-0 z-[80] transition-opacity duration-400 ${
-        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-      }`}
-      aria-hidden={!shown}
+    <Overlay
+      open={open}
+      onClose={onClose}
+      label="Search LATE EDIT"
+      surface="top"
+      z={80}
+      initialFocusRef={inputRef}
+      backdropClassName="bg-foreground/40 backdrop-blur-sm"
     >
-      <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className={`absolute left-0 right-0 top-0 bg-background border-b border-border transition-transform duration-[520ms] ease-editorial will-change-transform ${
-          shown ? "translate-y-0" : "-translate-y-full"
-        }`}
-      >
         {/* Mobile top bar with dedicated close */}
         <div className="md:hidden flex items-center justify-between px-4 h-14 border-b border-border/60">
           <span className="label-eyebrow">Search</span>
@@ -217,8 +203,6 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }

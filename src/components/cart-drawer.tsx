@@ -1,8 +1,6 @@
-import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { X, Trash2, Timer } from "lucide-react";
-import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
-import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
+import { Overlay } from "./overlay";
 import { products } from "@/lib/mockData";
 import { formatHold, useCart } from "@/lib/cart-context";
 import { useSettings } from "@/lib/settings-context";
@@ -10,37 +8,13 @@ import { formatAmount } from "@/lib/catalogue";
 import { Price } from "./price";
 
 export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
-  useBodyScrollLock(open);
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
   const { detailed, count, subtotal, remove, released, acknowledgeReleased } = useCart();
   const { currency } = useSettings();
   const highlights = products.filter((p) => p.status === "available").slice(0, 3);
   const empty = detailed.length === 0;
 
-  const { mounted, shown } = useOverlayPresence(open, 560);
-
-  if (!mounted) return null;
-
   return (
-    <OverlayPortal>
-    <div
-      className={`fixed inset-0 z-[60] transition-opacity duration-500 ${
-        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-      }`}
-      aria-hidden={!shown}
-    >
-      <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={onClose} />
-      <aside
-        className={`absolute right-0 top-0 h-dvh w-full max-w-md bg-surface border-l border-border transition-transform duration-[520ms] ease-editorial will-change-transform ${
-          shown ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+    <Overlay open={open} onClose={onClose} label="Your Atelier Bag" surface="right" z={60}>
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-6 md:px-8 py-4 md:py-6 border-b border-border">
             <span className="label-eyebrow !text-foreground">
@@ -174,8 +148,6 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
             </p>
           </div>
         </div>
-      </aside>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }

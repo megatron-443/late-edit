@@ -1,40 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import { accountTabs } from "@/lib/mockData";
-import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
-import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
+import { Overlay } from "./overlay";
 
 
 export function AccountDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [tab, setTab] = useState<(typeof accountTabs)[number]["id"]>(accountTabs[0].id);
   const active = accountTabs.find((t) => t.id === tab) ?? accountTabs[0];
-  useBodyScrollLock(open);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-
-  const { mounted, shown } = useOverlayPresence(open, 560);
-
-  if (!mounted) return null;
-
   return (
-    <OverlayPortal>
-    <div
-      className={`fixed inset-0 z-[70] transition-opacity duration-500 ${
-        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-      }`}
-      aria-hidden={!shown}
-    >
-      <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={onClose} />
-      <aside
-        className={`absolute right-0 top-0 h-dvh w-full max-w-md bg-surface border-l border-border transition-transform duration-[520ms] ease-editorial will-change-transform ${
-          shown ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+    <Overlay open={open} onClose={onClose} label="Account" surface="right" z={70}>
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-6 md:px-8 py-4 md:py-6 border-b border-border">
             <span className="label-eyebrow !text-foreground">Account</span>
@@ -101,8 +75,6 @@ export function AccountDrawer({ open, onClose }: { open: boolean; onClose: () =>
             </button>
           </div>
         </div>
-      </aside>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }
