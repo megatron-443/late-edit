@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, Heart, Mail, MessageCircle, Moon, Search, Sun, User, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Heart, Mail, MessageCircle, Moon, Sun, User, X } from "lucide-react";
 
 import { menuSections, concierge, type MenuNode } from "@/lib/mockData";
 import { CURRENCY_META, LANGUAGES, useSettings, type Language } from "@/lib/settings-context";
@@ -52,10 +52,9 @@ type Props = {
   onClose: () => void;
   onOpenWishlist?: () => void;
   onOpenAccount?: () => void;
-  onOpenSearch?: () => void;
 };
 
-export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpenSearch }: Props) {
+export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount }: Props) {
 
   const { count } = useWishlist();
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -204,16 +203,6 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
           </div>
 
           <div className={`flex-1 min-h-0 overflow-y-auto scrollbar-luxury px-6 md:px-8 py-8 space-y-10 ${open ? "stagger-children" : ""}`}>
-            {onOpenSearch && (
-              <button
-                type="button"
-                onClick={onOpenSearch}
-                className="hidden md:flex w-full items-center gap-3 px-4 h-11 border border-border hover:border-foreground transition-colors text-sm text-muted-foreground"
-              >
-                <Search size={14} strokeWidth={1.5} />
-                <span>Search the archive</span>
-              </button>
-            )}
             {menuSections.map((section, i) => (
               <section
                 key={section.eyebrow}
@@ -226,8 +215,8 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount, onOpe
               </section>
             ))}
 
-            {/* Mobile-only quick actions */}
-            <section className="md:hidden pt-2 border-t border-border">
+            {/* Quick actions — same utilities on every viewport */}
+            <section className="pt-2 border-t border-border">
               <div className="pt-6 grid grid-cols-2 gap-2">
                 <button
                   onClick={onOpenWishlist}
