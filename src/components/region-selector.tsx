@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useSettings, type Currency, type Language } from "@/lib/settings-context";
+import { lockBodyScroll } from "@/hooks/use-body-scroll-lock";
+import { OverlayPortal } from "./overlay-portal";
 
 type Region = {
   country: string;
@@ -50,10 +52,10 @@ export function RegionSelector({ open, onClose }: Props) {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      unlock();
     };
   }, [open, onClose]);
 
@@ -66,6 +68,7 @@ export function RegionSelector({ open, onClose }: Props) {
   if (!open) return null;
 
   return (
+    <OverlayPortal>
     <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Region, language and currency">
       <button
         aria-label="Close region selector"
@@ -136,5 +139,6 @@ export function RegionSelector({ open, onClose }: Props) {
         </footer>
       </div>
     </div>
+    </OverlayPortal>
   );
 }

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
+import { OverlayPortal, useOverlayPresence } from "./overlay-portal";
 import { products } from "@/lib/mockData";
 import { useCart } from "@/lib/cart-context";
 import { useSettings } from "@/lib/settings-context";
@@ -22,17 +23,22 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
   const highlights = products.filter((p) => p.status === "available").slice(0, 3);
   const empty = detailed.length === 0;
 
+  const { mounted, shown } = useOverlayPresence(open, 560);
+
+  if (!mounted) return null;
+
   return (
+    <OverlayPortal>
     <div
       className={`fixed inset-0 z-[60] transition-opacity duration-500 ${
-        open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        shown ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       }`}
-      aria-hidden={!open}
+      aria-hidden={!shown}
     >
       <div className="absolute inset-0 bg-foreground/30 backdrop-blur-sm" onClick={onClose} />
       <aside
         className={`absolute right-0 top-0 h-dvh w-full max-w-md bg-surface border-l border-border transition-transform duration-[520ms] ease-editorial will-change-transform ${
-          open ? "translate-x-0" : "translate-x-full"
+          shown ? "translate-x-0" : "translate-x-full"
         }`}
       >
         <div className="flex h-full flex-col">
@@ -175,5 +181,6 @@ export function CartDrawer({ open, onClose }: { open: boolean; onClose: () => vo
         </div>
       </aside>
     </div>
+    </OverlayPortal>
   );
 }

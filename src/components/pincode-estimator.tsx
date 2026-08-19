@@ -28,6 +28,7 @@ export function PincodeEstimator() {
       <form onSubmit={check} className="mt-3 flex items-stretch border border-border">
         <input
           inputMode="numeric"
+          size={1}
           maxLength={6}
           value={pincode}
           onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}

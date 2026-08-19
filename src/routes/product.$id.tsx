@@ -127,7 +127,7 @@ function ProductPage() {
     <div className="pt-28 pb-24 md:pb-0">
       <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-[1.4fr_1fr] gap-16">
         {/* Gallery — vertical stack on desktop, snap-scroll carousel on mobile */}
-        <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory lg:flex-col lg:overflow-visible -mx-6 px-6 lg:mx-0 lg:px-0 scrollbar-none">
+        <div className="min-w-0 flex gap-4 overflow-x-auto snap-x snap-mandatory lg:flex-col lg:overflow-visible scrollbar-none">
           {product.images.map((src, i) => (
             <div
               key={i}
@@ -145,7 +145,7 @@ function ProductPage() {
         </div>
 
         {/* Details */}
-        <div className="lg:sticky lg:top-28 lg:self-start">
+        <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
           <ProductTags tags={product.tags} className="mb-6" />
 
 

@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { X, Check } from "lucide-react";
+import { lockBodyScroll } from "@/hooks/use-body-scroll-lock";
+import { OverlayPortal } from "./overlay-portal";
 
 /** Single-choice chip row (category, price band, sort). */
 export type SingleGroup = {
@@ -50,16 +52,17 @@ export function FilterModal({ open, onClose, groups, onReset, resultCount }: Pro
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
+    const unlock = lockBodyScroll();
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      unlock();
     };
   }, [open, onClose]);
 
   if (!open) return null;
 
   return (
+    <OverlayPortal>
     <div className="fixed inset-0 z-[75]" role="dialog" aria-modal="true" aria-label="Filter catalogue">
       <button
         aria-label="Close filters"
@@ -178,6 +181,7 @@ export function FilterModal({ open, onClose, groups, onReset, resultCount }: Pro
         </footer>
       </div>
     </div>
+    </OverlayPortal>
   );
 }
 
