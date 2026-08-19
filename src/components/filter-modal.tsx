@@ -161,9 +161,7 @@ export function FilterModal({ open, onClose, groups, onReset, resultCount }: Pro
             {typeof resultCount === "number" ? `View ${resultCount} pieces` : "View pieces"}
           </button>
         </footer>
-      </div>
-    </div>
-    </OverlayPortal>
+    </Overlay>
   );
 }
 
