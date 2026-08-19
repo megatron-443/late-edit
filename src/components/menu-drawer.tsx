@@ -152,6 +152,7 @@ export function MenuDrawer({ open, onClose, onOpenWishlist, onOpenAccount }: Pro
                 <li key={child.label} className="pl-4">
                   <Link
                     to={child.to as string}
+                    search={child.search ? { category: child.search.category } : undefined}
                     onClick={onClose}
                     className="block text-sm tracking-wide text-muted-foreground hover:text-foreground transition-colors"
                   >
