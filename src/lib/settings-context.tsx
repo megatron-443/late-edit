@@ -237,6 +237,57 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // Mobile / touch / narrow viewports: a document-wide ViewTransition has to
+    // snapshot the whole (very tall) page twice, which stutters badly. Instead
+    // swap the palette instantly and dissolve a single full-screen veil painted
+    // with the outgoing background colour — one compositor-only opacity
+    // animation, no layout, no snapshot.
+    const isMobileLike =
+      typeof window.matchMedia === "function" &&
+      (window.matchMedia("(pointer: coarse)").matches ||
+        window.matchMedia("(max-width: 1023px)").matches);
+
+    if (isMobileLike) {
+      const outgoing =
+        getComputedStyle(document.body).backgroundColor || "transparent";
+
+      const veil = document.createElement("div");
+      veil.setAttribute("aria-hidden", "true");
+      veil.style.cssText = [
+        "position:fixed",
+        "inset:0",
+        "z-index:2147483647",
+        "pointer-events:none",
+        `background:${outgoing}`,
+        "opacity:1",
+        "will-change:opacity",
+        "contain:strict",
+      ].join(";");
+
+      // Suppress backdrop blur for the duration so the veil composites cheaply.
+      root.classList.add("theme-veil-active");
+      document.body.appendChild(veil);
+
+      flushSync(() => setThemeState(t));
+
+      const cleanup = () => {
+        veil.remove();
+        root.classList.remove("theme-veil-active");
+      };
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const anim = veil.animate(
+            [{ opacity: 1 }, { opacity: 0 }],
+            { duration: 260, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" },
+          );
+          anim.finished.then(cleanup, cleanup);
+        });
+      });
+      window.setTimeout(cleanup, 900);
+      return;
+    }
+
     const startViewTransition = (
       document as Document & {
         startViewTransition?: (cb: () => void) => { finished: Promise<void> };
@@ -255,6 +306,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         .finally(() => root.classList.remove("theme-vt"));
       return;
     }
+
 
     root.classList.add("theme-transition");
     window.setTimeout(() => root.classList.remove("theme-transition"), 320);
